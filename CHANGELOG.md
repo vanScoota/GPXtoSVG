@@ -1,6 +1,6 @@
 # Changelog
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
-## [1.0.0] - 2017-09-18
+## [1.0.0] - 2018-04-11
 ### Added
-- Übergabe von Tim Haas (TLS591hs) an Maximilian Schön (TLS591sn).
+- Quelldatei (GPX), XSLT-Stylesheet und dieses Changelog hochgeladen.
