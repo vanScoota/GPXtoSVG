@@ -52,7 +52,7 @@
                 <xsl:attribute name="height" select="$svgHeight"/>
             </rect>
             <!-- verarbeite Punkte -->
-            <xsl:apply-templates select="//gh:trkpt"/>
+            <xsl:apply-templates select="//gh:trkpt[fn:position() != fn:last()]"/>
         </svg>
     </xsl:template>
 
@@ -67,7 +67,7 @@
     -->
     
     <!-- Darstellung mit Linien -->
-    <xsl:template match="gh:trkpt[fn:position() != fn:last()]">
+    <xsl:template match="gh:trkpt">
         <line fill="none">
             <xsl:attribute name="stroke" select="fn_ms:random-color()"/>
             <xsl:attribute name="x1" select="(xs:dateTime(gh:time) - $minTime) div xs:dayTimeDuration('PT1S') * $xScale"/>

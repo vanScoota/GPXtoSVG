@@ -1,6 +1,10 @@
 # Changelog
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
+## [1.1.1] - 2018-04-12
+### Fixed
+- Letzter `trkpt` wird nicht mehr verarbeitet.
+
 ## [1.1.0] - 2018-04-12
 ### Added
 - Höhenprofil wird in zufälligen Farben dargestellt.
