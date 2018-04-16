@@ -1,6 +1,10 @@
 # Changelog
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
+## [1.2.0] - 2018-04-16
+### Fixed
+- Enthält das Dokument mehrere `trkseg`, werden diese farblich unterschieden.
+
 ## [1.1.1] - 2018-04-12
 ### Fixed
 - Letzter `trkpt` wird nicht mehr verarbeitet.
