@@ -18,6 +18,10 @@
     <xsl:variable name="svgWidth" select="1200"/>
     <xsl:variable name="svgHeight" select="600"/>
     
+    <!-- Abmessungen des Höhenprofils -->
+    <xsl:variable name="profileWidth" select="$svgWidth - 2 * $padding"/>
+    <xsl:variable name="profileHeight" select="$svgHeight - 2 * $padding"/>
+    
      <!-- ermittle frühesten und spätesten Zeitpunkt sowie Zeitdifferenz -->
     <xsl:variable name="minTime" select="fn:min(//trkpt/xs:dateTime(time))"/>
     <xsl:variable name="maxTime" select="fn:max(//trkpt/xs:dateTime(time))"/>
@@ -28,17 +32,13 @@
     <xsl:variable name="maxEle" select="fn:max(//trkpt/ele)"/>
     <xsl:variable name="difEle" select="$maxEle - $minEle"/>
     
-    <!-- ermittle minimale und maximale Breiten- und Längenangaben -->
-    <!--
-    <xsl:variable name="minLat" select="fn:min(//trkpt/@lat)"/>
-    <xsl:variable name="maxLat" select="fn:max(//trkpt/@lat)"/>
-    <xsl:variable name="minLon" select="fn:min(//trkpt/@lon)"/>
-    <xsl:variable name="maxLon" select="fn:max(//trkpt/@lon)"/>
-    -->
-    
     <!-- berechne Maßstab für x- und y-Achse -->
-    <xsl:variable name="xScale" select="$svgWidth div $difTime"/>
-    <xsl:variable name="yScale" select="$svgHeight div $difEle"/>
+    <xsl:variable name="xScale" select="$profileWidth div $difTime"/>
+    <xsl:variable name="yScale" select="$profileHeight div $difEle"/>
+    
+    <!-- Abstand für Achsen und Beschriftung -->
+    <xsl:variable name="padding" select="100"/>
+    <xsl:variable name="offset" select="10"/>
     
     <xsl:template match="/">
         <svg>
@@ -46,15 +46,107 @@
             <xsl:attribute name="height" select="$svgHeight"/>
             <!-- Text-Ausgaben zum Debuggen -->
             <debug>
+                <xsl:value-of select="$minEle"/>
             </debug>
             <!-- Rahmen -->
-            <rect x="0" y="0" fill="none" stroke="red">
+            <rect x="0" y="0" fill="none" stroke="black">
                 <xsl:attribute name="width" select="$svgWidth"/>
                 <xsl:attribute name="height" select="$svgHeight"/>
             </rect>
+            <!-- erstelle Hilfslinien mit Beschriftung -->
+            <xsl:call-template name="labels"/>
+            <xsl:call-template name="lines"/>
             <!-- verarbeite Segmente -->
             <xsl:apply-templates select="//trkseg"/>
         </svg>
+    </xsl:template>
+    
+    <!-- erstelle Achsenbeschriftung -->
+    <xsl:template name="labels">
+        <!-- Beschriftung x-Achse (Zeit) -->
+        <text text-anchor="middle" dy="1em">
+            <xsl:attribute name="x" select="$padding"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
+            <xsl:value-of select="$minTime"/>
+        </text>
+        <text text-anchor="middle" dy="1em">
+            <xsl:attribute name="x" select="$svgWidth div 2"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
+            <xsl:value-of select="($maxTime - $minTime) div 2 + $minTime"/>
+        </text>
+        <text text-anchor="middle" dy="1em">
+            <xsl:attribute name="x" select="$svgWidth - $padding"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
+            <xsl:value-of select="$maxTime"/>
+        </text>
+        <!-- Beschriftung y-Achse (Höhe) -->
+        <text text-anchor="end" dy="0.3em">
+            <xsl:attribute name="x" select="$padding - 2 * $offset"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding"/>
+            <xsl:value-of select="fn:round($minEle)"/>
+            <xsl:text> m</xsl:text>
+        </text>
+        <text text-anchor="end" dy="0.3em">
+            <xsl:attribute name="x" select="$padding - 2 * $offset"/>
+            <xsl:attribute name="y" select="$svgHeight div 2"/>
+            <xsl:value-of select="fn:round(($minEle + $maxEle) div 2)"/>
+            <xsl:text> m</xsl:text>
+        </text>
+        <text text-anchor="end" dy="0.3em">
+            <xsl:attribute name="x" select="$padding - 2 * $offset"/>
+            <xsl:attribute name="y" select="$padding"/>
+            <xsl:value-of select="fn:round($maxEle)"/>
+            <xsl:text> m</xsl:text>
+        </text>
+    </xsl:template>
+    
+    <!-- erstelle Hilfslinien -->
+    <xsl:template name="lines">
+        <xsl:variable name="stroke-width" select="0.5"/>
+        <!-- horizontale Hilfslinien -->
+        <line fill="none" stroke="black">
+            <xsl:attribute name="stroke-width" select="$stroke-width"/>
+            <xsl:attribute name="x1" select="$padding - $offset"/>
+            <xsl:attribute name="y1" select="$padding"/>
+            <xsl:attribute name="x2" select="$svgWidth - $padding + $offset"/>
+            <xsl:attribute name="y2" select="$padding"/>
+        </line>
+        <line fill="none" stroke="black">
+            <xsl:attribute name="stroke-width" select="$stroke-width"/>
+            <xsl:attribute name="x1" select="$padding - $offset"/>
+            <xsl:attribute name="y1" select="$svgHeight div 2"/>
+            <xsl:attribute name="x2" select="$svgWidth - $padding + $offset"/>
+            <xsl:attribute name="y2" select="$svgHeight div 2"/>
+        </line>
+        <line fill="none" stroke="black">
+            <xsl:attribute name="stroke-width" select="$stroke-width"/>
+            <xsl:attribute name="x1" select="$padding - $offset"/>
+            <xsl:attribute name="y1" select="$svgHeight - $padding"/>
+            <xsl:attribute name="x2" select="$svgWidth - $padding + $offset"/>
+            <xsl:attribute name="y2" select="$svgHeight - $padding"/>
+        </line>
+        <!-- vertikale Hilfslinien -->
+        <line fill="none" stroke="black">
+            <xsl:attribute name="stroke-width" select="$stroke-width"/>
+            <xsl:attribute name="x1" select="$padding"/>
+            <xsl:attribute name="y1" select="$svgHeight - $padding + $offset"/>
+            <xsl:attribute name="x2" select="$padding"/>
+            <xsl:attribute name="y2" select="$padding - $offset"/>
+        </line>
+        <line fill="none" stroke="black">
+            <xsl:attribute name="stroke-width" select="$stroke-width"/>
+            <xsl:attribute name="x1" select="$svgWidth div 2"/>
+            <xsl:attribute name="y1" select="$svgHeight - $padding + $offset"/>
+            <xsl:attribute name="x2" select="$svgWidth div 2"/>
+            <xsl:attribute name="y2" select="$padding - $offset"/>
+        </line>
+        <line fill="none" stroke="black">
+            <xsl:attribute name="stroke-width" select="$stroke-width"/>
+            <xsl:attribute name="x1" select="$svgWidth - $padding"/>
+            <xsl:attribute name="y1" select="$svgHeight - $padding + $offset"/>
+            <xsl:attribute name="x2" select="$svgWidth - $padding"/>
+            <xsl:attribute name="y2" select="$padding - $offset"/>
+        </line>
     </xsl:template>
     
     <xsl:template match="trkseg">
@@ -72,16 +164,16 @@
         </xsl:choose>
     </xsl:template>
     
-    <!-- Darstellung mit Linien -->
+    <!-- Darstellung der Strecke mit Linien -->
     <xsl:template match="trkpt">
         <!-- wird keine Farbe übergeben, erstelle zufällige Farbe -->
         <xsl:param name="color" select="fn_ms:random-color()"/>
         <line fill="none">
             <xsl:attribute name="stroke" select="$color"/>
-            <xsl:attribute name="x1" select="(xs:dateTime(time) - $minTime) div xs:dayTimeDuration('PT1S') * $xScale"/>
-            <xsl:attribute name="y1" select="$svgHeight - (ele - $minEle) * $yScale"/>
-            <xsl:attribute name="x2" select="(xs:dateTime(following-sibling::trkpt[1]/time) - $minTime) div xs:dayTimeDuration('PT1S') * $xScale"/>
-            <xsl:attribute name="y2" select="$svgHeight - (following-sibling::trkpt[1]/ele - $minEle) * $yScale"/>
+            <xsl:attribute name="x1" select="(xs:dateTime(time) - $minTime) div xs:dayTimeDuration('PT1S') * $xScale + $padding"/>
+            <xsl:attribute name="y1" select="$profileHeight - (ele - $minEle) * $yScale  + $padding"/>
+            <xsl:attribute name="x2" select="(xs:dateTime(following-sibling::trkpt[1]/time) - $minTime) div xs:dayTimeDuration('PT1S') * $xScale  + $padding"/>
+            <xsl:attribute name="y2" select="$profileHeight - (following-sibling::trkpt[1]/ele - $minEle) * $yScale  + $padding"/>
         </line>
     </xsl:template>
     
@@ -97,52 +189,5 @@
                 xs:integer(math:random() * 256) mod 256,
                 ')')"/>
     </xsl:function>
-    
-    <!-- Darstellung mit Punkten -->
-    <!--
-    <xsl:template match="trkpt">
-        <circle r="1" fill="black" stroke="none">
-            <xsl:attribute name="cx" select="(xs:dateTime(time) - $minTime) div xs:dayTimeDuration('PT1S') * $xScale"/>
-            <xsl:attribute name="cy" select="$svgHeight - (ele - $minEle) * $yScale"/>
-        </circle>
-    </xsl:template>
-    -->
-	
-    <!-- erstelle zufälligen, hexadezimalen Farbcode -->
-    <!--
-    <xsl:function name="fn_ms:random-hex-color" as="xs:string">
-        <xsl:sequence select="
-            fn:concat (
-                '#',
-                fn_ms:int-to-hex (
-                    xs:decimal(math:random() * 16777216) mod 16777216
-                )
-            )
-        "/>
-    </xsl:function>
-    -->
-    
-    <!-- wandle Dezimalzahl in Hexadezimalzahl um -->
-    <!--
-    <xsl:function name="fn_ms:int-to-hex" as="xs:string">
-        <xsl:param name="input" as="xs:decimal"/>
-        <xsl:sequence select="
-            if ($input eq 0) then
-                '0'
-            else
-                fn:concat (
-                    if ($input gt 16) then
-                        fn_ms:int-to-hex($input idiv 16)
-                    else
-                        '',
-                        fn:substring (
-                            '0123456789ABCDEF',
-                            ($input mod 16) + 1,
-                            1
-                        )
-                )
-        "/>
-    </xsl:function>
-    -->
     
 </xsl:stylesheet>
