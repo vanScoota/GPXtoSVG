@@ -67,38 +67,86 @@
         <text text-anchor="middle" dy="1em">
             <xsl:attribute name="x" select="$padding"/>
             <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
-            <xsl:value-of select="$minTime"/>
+            <xsl:value-of select="fn_ms:time($minTime)"/>
+        </text>
+        <text text-anchor="middle" dy="3em" font-size="0.7em">
+            <xsl:attribute name="x" select="$padding"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
+            <xsl:value-of select="fn_ms:date($minTime)"/>
         </text>
         <text text-anchor="middle" dy="1em">
             <xsl:attribute name="x" select="$svgWidth div 2"/>
             <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
-            <xsl:value-of select="($maxTime - $minTime) div 2 + $minTime"/>
+            <xsl:value-of select="fn_ms:time(($maxTime - $minTime) div 2 + $minTime)"/>
+        </text>
+        <text text-anchor="middle" dy="3em" font-size="0.7em">
+            <xsl:attribute name="x" select="$svgWidth div 2"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
+            <xsl:value-of select="fn_ms:date(($maxTime - $minTime) div 2 + $minTime)"/>
         </text>
         <text text-anchor="middle" dy="1em">
             <xsl:attribute name="x" select="$svgWidth - $padding"/>
             <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
-            <xsl:value-of select="$maxTime"/>
+            <xsl:value-of select="fn_ms:time($maxTime)"/>
+        </text>
+        <text text-anchor="middle" dy="3em" font-size="0.7em">
+            <xsl:attribute name="x" select="$svgWidth - $padding"/>
+            <xsl:attribute name="y" select="$svgHeight - $padding + 2 * $offset"/>
+            <xsl:value-of select="fn_ms:date($maxTime)"/>
         </text>
         <!-- Beschriftung y-Achse (Höhe) -->
-        <text text-anchor="end" dy="0.3em">
+        <text text-anchor="end" dy="0.35em">
             <xsl:attribute name="x" select="$padding - 2 * $offset"/>
             <xsl:attribute name="y" select="$svgHeight - $padding"/>
             <xsl:value-of select="fn:round($minEle)"/>
             <xsl:text> m</xsl:text>
         </text>
-        <text text-anchor="end" dy="0.3em">
+        <text text-anchor="end" dy="0.35em">
             <xsl:attribute name="x" select="$padding - 2 * $offset"/>
             <xsl:attribute name="y" select="$svgHeight div 2"/>
             <xsl:value-of select="fn:round(($minEle + $maxEle) div 2)"/>
             <xsl:text> m</xsl:text>
         </text>
-        <text text-anchor="end" dy="0.3em">
+        <text text-anchor="end" dy="0.35em">
             <xsl:attribute name="x" select="$padding - 2 * $offset"/>
             <xsl:attribute name="y" select="$padding"/>
             <xsl:value-of select="fn:round($maxEle)"/>
             <xsl:text> m</xsl:text>
         </text>
     </xsl:template>
+    
+    <!-- Zeit im Format hh:mm:ss aus dateTime filtern -->
+    <xsl:function name="fn_ms:time">
+        <xsl:param name="dateTime" as="xs:dateTime"/>
+        <!-- ziehe Zeit aus dateTime -->
+        <xsl:variable name="time" select="fn:substring-before(fn:substring-after(xs:string($dateTime), 'T'), 'Z')"/>
+        <!-- Sekundenbruchteile abschneiden -->
+        <xsl:choose>
+            <xsl:when test="fn:contains($time, '.')">
+                <xsl:sequence select="fn:substring-before($time, '.')"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:sequence select="$time"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:function>
+    
+    <!-- Datum im Format dd.mm.yyyy aus dateTime filtern -->
+    <xsl:function name="fn_ms:date">
+        <xsl:param name="dateTime" as="xs:dateTime"/>
+        <!-- ziehe Datum aus dateTime -->
+        <xsl:variable name="date" select="fn:substring-before(xs:string($dateTime), 'T')"/>
+        <!-- ändere Format -->
+        <xsl:sequence select="
+                fn:concat (
+                    fn:substring-after(fn:substring-after($date, '-'), '-'),
+                    '.',
+                    fn:substring-before(fn:substring-after($date, '-'), '-'),
+                    '.',
+                    fn:substring-before($date, '-')
+                )
+        "/>
+    </xsl:function>
     
     <!-- erstelle Hilfslinien -->
     <xsl:template name="lines">
@@ -187,7 +235,9 @@
                 xs:integer(math:random() * 256) mod 256,
                 ', ',
                 xs:integer(math:random() * 256) mod 256,
-                ')')"/>
+                ')'
+            )
+        "/>
     </xsl:function>
     
 </xsl:stylesheet>

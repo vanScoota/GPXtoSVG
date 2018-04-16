@@ -1,6 +1,10 @@
 # Changelog
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
+## [1.4.0] - 2018-04-16
+### Changed
+- Zeitachse korrekt beschriftet.
+
 ## [1.3.0] - 2018-04-16
 ### Added
 - Achsen und Achsenbeschriftungen werden angezeigt.
