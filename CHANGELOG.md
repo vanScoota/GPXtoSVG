@@ -1,8 +1,12 @@
 # Changelog
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
+## [1.3.0] - 2018-04-16
+### Added
+- Achsen und Achsenbeschriftungen werden angezeigt.
+
 ## [1.2.0] - 2018-04-16
-### Fixed
+### Changed
 - Enthält das Dokument mehrere `trkseg`, werden diese farblich unterschieden.
 
 ## [1.1.1] - 2018-04-12
