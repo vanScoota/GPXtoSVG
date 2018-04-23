@@ -1,6 +1,10 @@
 # Changelog
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
+## [1.5.0] - 2018-04-23
+### Added
+- Präsentation und ZIP-Archiv zur finalen Abgabe hinzugefügt.
+
 ## [1.4.0] - 2018-04-16
 ### Changed
 - Zeitachse korrekt beschriftet.
